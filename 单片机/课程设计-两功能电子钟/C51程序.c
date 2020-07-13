@@ -72,41 +72,41 @@ void  main(void)
     Inital();//初始化定时器
 	
     while(1)
-	  {	
-		    time_KeyScan();                    //一开始就显示时钟				
-	      display();							           //初始显示的是时间12-59-55
-		    count_KeyScan();					         //秒表按键功能函数
+    {	
+        time_KeyScan();                         //一开始就显示时钟				
+	display();				//初始显示的是时间12-59-55
+        count_KeyScan();		        //秒表按键功能函数
 	         	
-		    if(model_clock==0)
-		    {
-		        delay(10);
-			      if(model_clock==0)
-			      { 	
-			          while(!model_clock){
-				            //将清零前的数值保存下来，按键转换后从这个地方开始	
-		                sec10=save_sec10;
+        if(model_clock==0)
+        {
+             delay(10);
+	     if(model_clock==0)
+             { 	
+	         while(!model_clock){
+	         //将清零前的数值保存下来，按键转换后从这个地方开始	
+		    sec10=save_sec10;
                     sec=save_sec;
                     min=save_min;
                     hour=sec_hour;
-					          flag=0;              //时钟打开标志位				
-				            TR0=1;ET0=1;	       //打开定时器，走表,打开总中断	
-				       }					  
-		        }		 
-		    }
+		    flag=0;                    //时钟打开标志位				
+		    TR0=1;ET0=1;	       //打开定时器，走表,打开总中断	
+	          }					  
+	      }		 
+	}
 		    
         else if(model_miao==0)
-	      {     
-	          delay(10);
-	          if(model_miao==0)
-		        { 	
-	              while(!model_miao){
-		                TR0=0;ET0=0;				//定时停止，停止走表
-					          flag=1;						  //秒表打开标志位
-			              clear();            //清零，初始化00-00-00
-			          }
-			      }
-		     }  
-	  }
+	{     
+	    delay(10);
+	    if(model_miao==0)
+            { 	
+	        while(!model_miao){
+		    TR0=0;ET0=0;               	      //定时停止，停止走表
+	            flag=1;			      //秒表打开标志位
+                    clear();                          //清零，初始化00-00-00
+                }
+             }
+	}  
+    }
 }
 
 //**************初始化函数*********
@@ -114,164 +114,168 @@ void Inital()
 {
     TMOD=0x01;              //选择定时器0的工作方式1
     TH0=0xD8;               //装初值（定时10ms）,晶振12MHz
-	  TL0=0xF0;
-	  EA=1;		                //打开总中断
-	  ET0=1;	                //打开定时器中断
-	  TR0=1;	                //先不要启动定时器    
+    TL0=0xF0;
+    EA=1;		    //打开总中断
+    ET0=1;	            //打开定时器中断
+    TR0=1;	            //先不要启动定时器    
 }
 
 //*********中断********
-void time0_int(void)  interrupt 1  //定时器中断服务函数
+void time0_int(void)  interrupt 1   //定时器中断服务函数
 {
-	  TH0=0xD8;               //重装初值
-	  TL0=0xF0;
-	  sec10++;		            //让进入中断次数值加1，用于判断是否达到0.1s
-	  if(sec10==100)          //100*10ms=1s
-	  {
-		    sec10=0;
-		    sec++;
-		    if(sec==60)			    //sec=60 is 1minute
-		    {
-		        sec=0;
-			      min++;
-			      if(min==60)     //min=60 is 1hour
-			      {
-			          min=0;
-				        hour++;
-				        if(hour==24)//hour=24 is max
-				        {
-				            clear();//时分秒毫秒都清零，重新开始
-				        }
-			      }
-		    }
-	   }
+    TH0=0xD8;                       //重装初值
+    TL0=0xF0; 
+    sec10++;		            //让进入中断次数值加1，用于判断是否达到0.1s
+    if(sec10==100)                  //100*10ms=1s
+    {
+        sec10=0;
+        sec++;
+        if(sec==60)			    //sec=60 is 1minute
+        {
+            sec=0;
+            min++;
+            if(min==60)                 //min=60 is 1hour
+	    {
+                min=0;
+	        hour++;
+	        if(hour==24)            //hour=24 is max
+		{
+	             clear();           //时分秒毫秒都清零，重新开始
+	        }
+	     }
+          }
+      }
 	   
      if(hour!=0)
-	   {
-     //**********将清零前的数值保存下来，按键转换后从这个地方开始**********
-	       save_sec10=sec10;	  //保存毫秒
-         save_sec=sec;		    //保存秒
-         save_min=min;		    //保存分
-         sec_hour=hour;		    //保存小时
-	   }
+     {//**********将清零前的数值保存下来，按键转换后从这个地方开始**********
+	 save_sec10=sec10;	              //保存毫秒
+         save_sec=sec;		              //保存秒
+         save_min=min;		              //保存分
+         sec_hour=hour;		              //保存小时
+      }
 }
 
 //***********时钟功能函数***************
 void  time_KeyScan()
 {
-    if(start==0)          //设置时间之后，按下start键时钟继续走
-	  {
-		    delay(10);        //消抖
-		    if(start == 0)    //确实被按下
-		    {
-		         TR0=1;        //打开定时器，开始打节拍计数
-		    }
-	   }
+    if(start==0)                              //设置时间之后，按下start键时钟继续走
+    {
+        delay(10);                //消抖
+        if(start == 0)            //确实被按下
+        {
+            TR0=1;               //打开定时器，开始打节拍计数
+        }
+     }
 
 //***************秒增加*********
     if(sec_up==0)        
-	  {
-	      delay(6000);
-        if(sec_up==0)
-		    {
-			      TR0=0;
-			      if(sec!=59)
-			      {
-			          sec++;
-			      }
-			      else{sec=0;}
-			      delay(6000);
+    {
+	 delay(6000);
+         if(sec_up==0)
+	 {
+             TR0=0;
+	     if(sec!=59)
+	     {
+	         sec++;
+             }
+	     else{sec=0;}
+             delay(6000);
 			      
-            if(sec_up==1){TR0=1;}
-		     }
-	   }
+             if(sec_up==1){TR0=1;}
+          }
+     }
 //*******************秒减少*********	 
     if(sec_down==0)			  
+    {
+	  delay(6000);
+          if(sec_down==0)
 	  {
+              TR0=0;
+	      if(sec!=0)
+              { 
+                  sec--; 
+              }
+	      else{sec=59;}
 	      delay(6000);
-        if(sec_down==0)
-		    {
-			      TR0=0;
-			      if(sec!=0)
-            { 
-                sec--; 
-            }
-			      else{sec=59;}
-			      delay(6000);
-			      if(sec_down==1){TR0=1;}
-		     }
+	      
+	      if(sec_down==1){TR0=1;}
 	   }
+      }
 //*****************分钟增加*********	 
     if(min_up==0)
-	  {
-	      delay(6000);
+    {
+	delay(6000);
         if(min_up==0)
-		    {
-			      TR0=0;
-			      if(min!=59)
-			      {
-			          min++;
-			       }
-			      else{min=0;}
-			      delay(6000);
-		 	      if(min_up==1){TR0=1;}
-		     }
-	   }
+	{
+            TR0=0;
+            if(min!=59)
+	    {
+	        min++;
+	    }
+	    else{min=0;}
+            delay(6000);
+            
+            if(min_up==1){TR0=1;}
+         }
+    }
 //***************分钟减少**********	 
     if(min_down==0)
-	  {
-	    delay(6000);
+    {
+        delay(6000);
         if(min_down==0)
-		{
-			TR0=0;
-			if(min!=0)
-			{
-			    min--;
-			}
-			else{min=59;}
-			delay(6000);
-			if(min_down==1){TR0=1;}
-		}
+	{
+	    TR0=0;
+	    if(min!=0)
+	    {
+	        min--;
+	    }
+	    else{min=59;}
+	    delay(6000);
+	    
+            if(min_down==1){TR0=1;}
 	 }
+    }
 //*****************小时增加********	 
     if(hour_up==0)
-	 {
-	    delay(6000);
+    {
+	delay(6000);
         if(hour_up==0)
-		{
-			TR0=0;
-			if(hour!=23)
-			{
-			    hour++;
-			}
-			else{hour=23;}
-			delay(6000);
-			if(hour_up==1){TR0=1;}
-		}
+	{
+            TR0=0;
+	    if(hour!=23)
+            {
+                hour++;
+	    }
+	    else{hour=23;}
+	    delay(6000);
+			
+	    if(hour_up==1){TR0=1;}
 	 }
+    }
 //******************小时减少********	 
     if(hour_down==0)
-	 {
-	    delay(6000);
+    {
+	delay(6000);
         if(hour_down==0)
-		{
-			TR0=0;
-			if(hour!=0)
-			{
-			    hour--;
-			}
-			else{hour=23;}
-			delay(6000);
-			if(hour_down==1){TR0=1;}
-		}
+        {
+	    TR0=0;
+	    if(hour!=0)
+	    {
+		hour--;
+	    }
+	    else{hour=23;}
+			
+	    delay(6000);
+	    if(hour_down==1){TR0=1;}
 	 }
+    }
 //****************整点灯亮**********
      if((sec==0)&(min==0))
-	 {
-	     led=1;
-		 delay(100);
-		 led=0;
-	 }
+     {
+         led=1;
+	 delay(100);
+         led=0;
+     }
 }
 
 //********秒表功能函数***********
