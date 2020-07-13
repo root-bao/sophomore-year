@@ -69,7 +69,7 @@ uchar disbuffer[8] = {0x00,0x00,0x0b,0x00,0x00,0x0b,0x00,0x00};
 void  main(void)
 {
     led = 0;//led是默认关闭
-	  Inital();//初始化定时器
+    Inital();//初始化定时器
 	
     while(1)
 	  {	
@@ -278,39 +278,41 @@ void  time_KeyScan()
 void count_KeyScan()
 {
     if(start==0)          //计时开始检测，按下start键
+    {
+        delay(10);       //消抖
+	if(start == 0)   //确实被按下
 	{
-		delay(10);       //消抖
-		if(start == 0)   //确实被按下
-		{
-		    TR0=1;ET0=1;
-		}
+            TR0=1;ET0=1;
 	}
-	if(stop==0)		     //暂停键
+    }
+    
+    if(stop==0)		     //暂停键
+    {
+	delay(10);
+	if(stop==0)      //确实被按下
 	{
-		delay(10);
-		if(stop==0)      //确实被按下
-		{
-		    TR0=0;ET0=0;
-		}
+	    TR0=0;ET0=0;
 	}
-	if(reset==0)	     //复位键
+    }
+    
+    if(reset==0)	     //复位键
+    {
+	delay(10);
+	if(reset==0)     //确实被按下
 	{
-	    delay(10);
-		if(reset==0)     //确实被按下
-		{
-		    clear();	 //都清零
-			TR0=0;ET0=0;
-		}
-	} 
+            clear();	 //都清零
+	    TR0=0;ET0=0;
+	}
+     } 
 }
 
 //***********清零函数*********
 void clear()
 {
-    sec10=0;    //10ms
-    sec=0;     //1s
-    min =0;    //1min
-    hour=0;	   //1h
+    sec10=0;        //10ms
+    sec=0;          //1s
+    min =0;         //1min
+    hour=0;	    //1h
 }
 
 //************不精准延时函数************
@@ -319,38 +321,41 @@ void  delay(uint i)
     uint  j;
     for(j=0;j<i;j++){}
 }
+
+//************显示函数******************
 void  display(void)        				//定义显示函数
 {
     uchar  i,p,temp;
 
-	if(flag==0){//*************clock功能
+    if(flag==0){//*************clock功能
 	disbuffer[7] = sec%10;              //秒个位
-    disbuffer[6] = sec/10;	            //秒十位
+        disbuffer[6] = sec/10;	            //秒十位
 
 	disbuffer[4] = min%10;		     	//分个位
 	disbuffer[3] = min/10;			    //分十位
 
 	disbuffer[1] = hour%10;			    //小时个位
 	disbuffer[0] = hour/10;			    //小时十位
-   	}
+     }
 
-	if(flag==1){//************秒表功能
+     if(flag==1){//************秒表功能
 	disbuffer[7] = (sec10%10)%10;   //毫秒个位
-    disbuffer[6] = (sec10/10)%10;	//毫秒十位
+        disbuffer[6] = (sec10/10)%10;	//毫秒十位
 
 	disbuffer[4] = sec%10;			//秒个位
 	disbuffer[3] = sec/10;			//秒十位
 
 	disbuffer[1] = min%10;			//分个位
 	disbuffer[0] = min/10;			//分十位
-	}
+    }
+    
     for(i=0;i<8;i++)
     {
-        temp=chocode[i];               //取当前的位选码
-        P2=temp;        	           //送出位选码
-        p=disbuffer[i];                //取当前显示的字符
-        temp=codevalue[p];             //查得显示字符的字段码
-        P0=temp;        		       //送出字段码
-        delay(20);                     //延时1ms
+        temp=chocode[i];                        //取当前的位选码
+        P2=temp;        	                //送出位选码
+        p=disbuffer[i];                         //取当前显示的字符
+        temp=codevalue[p];                      //查得显示字符的字段码
+        P0=temp;        		        //送出字段码
+        delay(20);                              //延时1ms
     }	
 } 
